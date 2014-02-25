@@ -18,7 +18,8 @@ describe('Typeahead', function() {
     this.view = new Typeahead({
       input: this.$input,
       withHint: true,
-      datasets: {}
+      datasets: {},
+      minLength: 1
     });
 
     this.input = this.view.input;
@@ -165,6 +166,34 @@ describe('Typeahead', function() {
       this.input.trigger('focused');
 
       expect(this.dropdown.open).toHaveBeenCalled();
+    });
+
+    describe('if minLength is 0', function() {
+      beforeEach(function() {
+        this.view.minLength = 0;
+      });
+
+      it('should clear the hint', function() {
+        this.input.trigger('focused');
+
+        expect(this.input.clearHint).toHaveBeenCalled();
+      });
+
+      it('should update dropdown', function() {
+        this.input.trigger('focused');
+
+        expect(this.dropdown.update).toHaveBeenCalled();
+      });
+
+      it('should set the language direction', function() {
+        this.input.getLanguageDirection.andReturn('rtl');
+
+        this.input.trigger('focused');
+
+        expect(this.view.dir).toBe('rtl');
+        expect(this.view.$node).toHaveCss({ direction: 'rtl' });
+        expect(this.dropdown.setLanguageDirection).toHaveBeenCalledWith('rtl');
+      });
     });
   });
 
@@ -406,15 +435,23 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers whitespaceChanged', function() {
-    it('should update the hint', function() {
+    beforeEach(function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
       this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
       this.input.getInputValue.andReturn(testDatum.value.slice(0, 2));
+    });
 
+    it('should update the hint', function() {
       this.input.trigger('whitespaceChanged');
 
       expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+    });
+
+    it('should hide the placeholder text', function() {
+      this.input.trigger('whitespaceChanged');
+
+      expect(this.input.hidePlaceholder).toHaveBeenCalled();
     });
 
     it('should open the dropdown', function() {

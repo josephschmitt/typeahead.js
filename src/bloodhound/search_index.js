@@ -96,6 +96,10 @@ var SearchIndex = (function() {
         _.map(unique(matches), function(id) { return that.datums[id]; }) : [];
     },
 
+    all: function all() {
+      return this.datums.slice(0);
+    },
+
     serialize: function serialize() {
       return { datums: this.datums, trie: this.trie };
     }
